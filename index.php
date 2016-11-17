@@ -1,10 +1,11 @@
 <?php
-// custome title and header
-$title = "Example Contact Page";
+// custome branding for display page
+$title = "Example Title";
+$icon = "";
 if (isset($_POST["submit"])) {
 	// First, check BotBox trap
 	if ($_POST['botbox'] == '1') {
-		$result='<div class="alert alert-danger">You chekced the box. I told you not to check the box. Try again</div>';
+		$result='<div class="alert alert-danger">You chekced the box. I told you not to check the box. Try again.</div>';
 	} else {
 
 		// Inline form definitions
@@ -16,26 +17,26 @@ if (isset($_POST["submit"])) {
 // BENGIN OPTIONS: Set these values to suit
 		$from = 'From: John Smith <no-reply@example.com>';
 		$to = 'example@example.com'; 
-		$subject = 'Message from Example Contact Form ';
+		$subject = 'Message from Improved Contact Form ';
 // END OPTIONS	
 		$body ="From: $name\n E-Mail: $email\n Message:\n $message";
 
 		// Check if name has been entered
 		if (!$_POST['name']) {
 			$errName = 'Please enter your name';
-		} else { $errName = '';
+		} else { $errName = null;
 				}
 	
 		// Check if email has been entered and is valid
 		if (!$_POST['email'] || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
 			$errEmail = 'Please enter a valid email address';
-		} else { $errEmail = '';
+		} else { $errEmail = null;
 				}
 	
 		//Check if message has been entered
 		if (!$_POST['message']) {
 			$errMessage = 'Please enter your message';
-		} else { $errMessage = '';
+		} else { $errMessage = null;
 				}
 
 		//Check if captcha is correct
@@ -46,13 +47,13 @@ if (isset($_POST["submit"])) {
 		if ($human !== $checkTotal)
 			{
 			$errHuman = 'Your captcha math is incorrect';
-		} else { $errHuman = ''; 
+		} else { $errHuman = null; 
 				}
 	}
 	// If there are no errors, send the email
 	if (($_POST['botbox'] == '0') && !$errName && !$errEmail && !$errMessage && !$errHuman) {
 		if (mail ($to, $subject, $body, $from)) {
-			$result='<div class="alert alert-success">Thank You! I will be in touch</div>';
+			$result='<div class="alert alert-success">Thank You! I will be in touch.</div>';
 		} else {
 			$result='<div class="alert alert-danger">Sorry there was an error sending your message. Please try again later.</div>';
 		}
@@ -67,38 +68,40 @@ if (isset($_POST["submit"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Bootstrap PHP Contact Form.">
     <meta name="author" content="unfettered.net">
+    <?php  echo (isset($icon) ? '<link rel="icon" href="'. $icon .' " />' : null); ?>    
     <title><?php echo $title ?></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/spacelab/bootstrap.min.css">
   </head>
   <body>
   	<div class="container">
   		<div class="row">
-  			<div class="col-md-6 col-md-offset-3">
+  			<div style="padding:5px 0px 0px 0px;" class="col-md-6 col-md-offset-3">
+			  	<div style="padding:0px 5px;"class="panel panel-default">
   				<h1 class="page-header text-center"><?php echo $title ?></h1>
 				<form class="form-horizontal" role="form" method="post" action="">
-					<div class="form-group">
+					<div class="form-group<?php echo (isset($errName) ? (' has-error') : null); ?>">
 						<label for="name" class="col-sm-2 control-label">Name</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" id="name" name="name" placeholder="First & Last Name" value="<?php echo (isset($_POST['name']) ? htmlspecialchars($_POST['name']) : null); ?>">
 							<?php echo (isset($errName) ? ("<p class='text-danger'> $errName</p>") : null);?>
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group<?php echo (isset($errEmail) ? (' has-error') : null); ?>">
 						<label for="email" class="col-sm-2 control-label">Email</label>
 						<div class="col-sm-10">
 							<input type="email" class="form-control" id="email" name="email" placeholder="example@domain.com" value="<?php echo (isset($_POST['email']) ? htmlspecialchars($_POST['email']) : null); ?>">
 							<?php echo (isset($errEmail) ? ("<p class='text-danger'> $errEmail</p>") : null);?>
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group<?php echo (isset($errMessage) ? (' has-error') : null); ?>">
 						<label for="message" class="col-sm-2 control-label">Message</label>
 						<div class="col-sm-10">
 							<textarea class="form-control" rows="4" name="message"><?php echo (isset($_POST['message']) ? htmlspecialchars($_POST['message']) : null);?></textarea>
 							<?php echo (isset($errMessage) ? ("<p class='text-danger'> $errMessage</p>") : null);?>
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="human" class="col-sm-2 control-label"><?php  
+					<div class="form-group<?php echo (isset($errHuman) ? (' has-error') : null); ?>">
+						<label for="human" class="col-sm-2 control-label"><?php 
 							$min_number = 0;
 							$max_number = 15;
 							$random_number1 = mt_rand($min_number, $max_number);
@@ -109,17 +112,18 @@ if (isset($_POST["submit"])) {
 							<input name="firstNumber" type="hidden" value="<?php echo $random_number1; ?>" />
 							<input name="secondNumber" type="hidden" value="<?php echo $random_number2; ?>" />
 							<?php echo (isset($errHuman) ? ("<p class='text-danger'> $errHuman</p>") : null);?>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-10 col-sm-offset-2">
 							<div class="checkbox">
 							  <label>
 							    <input type="hidden" name="botbox" value="0" />
 							    <input name="botbox" type="checkbox" value="1"> Leave this box unchecked.
 							  </label>
 							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-10 col-sm-offset-2">
 							<input id="submit" name="submit" type="submit" value="Send" class="btn btn-primary">
+							<button type="reset" class="btn btn-default">Cancel</button>
 						</div>
 					</div>
 					<div class="form-group">
@@ -128,6 +132,7 @@ if (isset($_POST["submit"])) {
 						</div>
 					</div>
 				</form> 
+				</div>
 			</div>
 		</div>
 	</div>   
